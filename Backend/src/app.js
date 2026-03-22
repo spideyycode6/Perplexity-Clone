@@ -15,6 +15,7 @@ const publicPath = path.join(__dirname, '..', 'public');
 
 // ─── 3. Initialize app ────────────────────────────────────────────────────────
 const app = express();
+app.set("trust proxy", 1);
 
 // ─── 4. Built-in middleware ───────────────────────────────────────────────────
 app.use(express.json());

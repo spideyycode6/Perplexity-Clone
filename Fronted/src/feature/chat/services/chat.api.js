@@ -1,9 +1,10 @@
 import axios from "axios";
+import { getApiBaseURL } from "../../../config/apiOrigin.js";
 
 const api = axios.create({
-    baseURL:"http://localhost:3000",
-    withCredentials:true
-})
+    baseURL: getApiBaseURL(),
+    withCredentials: true,
+});
 
 export const sendMessage = async({message,chatId})=>{
     // Backend reads req.body.chat, not req.body.chatId

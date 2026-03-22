@@ -10,7 +10,7 @@ import app from './app.js';
 import { connectDatabase } from './config/database.js';
 import { initSocket } from './sockets/server.socket.js';
 
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 3000;
 const httpServer = http.createServer(app);
 initSocket(httpServer);
 

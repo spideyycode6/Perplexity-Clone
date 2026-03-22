@@ -1,13 +1,10 @@
 import axios from "axios";
-
-/** Empty string = same origin when the SPA is served by the backend (production). */
-const baseURL =
-    import.meta.env.VITE_API_BASE_URL ??
-    (import.meta.env.DEV ? "http://localhost:3000" : "");
+import { getApiBaseURL } from "../../../config/apiOrigin.js";
 
 const api = axios.create({
-    baseURL,
+    baseURL: getApiBaseURL(),
     withCredentials: true,
+    timeout: 60_000,
 });
 
 export const loginUser = async ({ identifier, password }) => {
