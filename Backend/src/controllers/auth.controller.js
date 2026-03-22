@@ -124,9 +124,9 @@ export const loginController = async (req, res) => {
     const token = jwt.sign({id: user._id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRY });
     res.cookie("token", token, {
         httpOnly: true,
-        secure: true,
+        secure: process.env.NODE_ENV === "production",
         sameSite: "strict",
-        maxAge: 15 * 60 * 60 * 1000
+        maxAge: 15 * 60 * 60 * 1000,
     });
 
     const userToSend = user.toObject();

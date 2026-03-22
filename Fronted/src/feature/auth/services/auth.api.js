@@ -1,7 +1,12 @@
 import axios from "axios";
 
+/** Empty string = same origin when the SPA is served by the backend (production). */
+const baseURL =
+    import.meta.env.VITE_API_BASE_URL ??
+    (import.meta.env.DEV ? "http://localhost:3000" : "");
+
 const api = axios.create({
-    baseURL: "http://localhost:3000",
+    baseURL,
     withCredentials: true,
 });
 

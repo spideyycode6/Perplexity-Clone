@@ -44,16 +44,21 @@ export function useAuth() {
         }
     }
 
-    async function handleGetMe(){
+    async function handleGetMe() {
         try {
             dispatch(setLoading(true));
             const data = await getMe();
             dispatch(setUser(data.user));
-
         } catch (error) {
-            dispatch(setError(error.response?.data?.message || "Something went wrong"))
-
-        }finally{
+            if (error.response?.status === 401) {
+                dispatch(setUser(null));
+                dispatch(setError(null));
+            } else {
+                dispatch(
+                    setError(error.response?.data?.message || "Something went wrong")
+                );
+            }
+        } finally {
             dispatch(setLoading(false));
         }
     }
