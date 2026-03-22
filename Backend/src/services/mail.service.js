@@ -12,6 +12,13 @@ const appPassword = () => {
     return String(raw).replace(/\s/g, "");
 };
 
+/** Avoid hanging the HTTP request if SMTP is slow or blocked (common on cloud hosts). */
+const smtpTimeouts = {
+    connectionTimeout: 12_000,
+    greetingTimeout: 12_000,
+    socketTimeout: 15_000,
+};
+
 const createTransporter = () => {
     const user = mailUser();
     const pass = appPassword();
@@ -22,6 +29,7 @@ const createTransporter = () => {
             port: 465,
             secure: true,
             auth: { user, pass },
+            ...smtpTimeouts,
         });
     }
 
@@ -47,11 +55,16 @@ const createTransporter = () => {
                 clientSecret,
                 refreshToken,
             },
+            ...smtpTimeouts,
         });
     }
 
     return null;
 };
+
+export function isMailConfigured() {
+    return createTransporter() !== null;
+}
 
 export const sendMail = async ({ to, subject, html }) => {
     const transporter = createTransporter();

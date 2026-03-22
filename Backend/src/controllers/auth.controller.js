@@ -1,6 +1,6 @@
 import { userModel } from "../models/user.model.js";
 import jwt from "jsonwebtoken";
-import { sendMail } from "../services/mail.service.js";
+import { sendMail, isMailConfigured } from "../services/mail.service.js";
 import bcrypt from "bcryptjs";
 
 export const registerController = async (req, res) => {
@@ -35,17 +35,23 @@ export const registerController = async (req, res) => {
         `http://localhost:${process.env.PORT || 3000}`;
     const verifyUrl = `${baseUrl.replace(/\/$/, "")}/api/auth/verify-email/${verificationToken}`;
 
+    // Send verification email in the background so registration returns quickly (SMTP can hang on deploy).
     let emailSent = false;
-    try {
-        await sendMail({
-            to: email,
-            subject: "Verify your email",
-            html: `Hi ${username},<br>Please verify your email by clicking on the link below:<br>
-               <a href="${verifyUrl}">Verify Email</a>`,
-        });
+    if (isMailConfigured()) {
         emailSent = true;
-    } catch (err) {
-        console.error("Verification email failed:", err.message);
+        const html = `Hi ${username},<br>Please verify your email by clicking on the link below:<br>
+               <a href="${verifyUrl}">Verify Email</a>`;
+        setImmediate(() => {
+            sendMail({
+                to: email,
+                subject: "Verify your email",
+                html,
+            }).catch((err) => {
+                console.error("Verification email failed (async):", err.message);
+            });
+        });
+    } else {
+        console.warn("Mail not configured; verification link not emailed.");
         if (process.env.NODE_ENV !== "production") {
             console.info("[dev] Verification link:", verifyUrl);
         }

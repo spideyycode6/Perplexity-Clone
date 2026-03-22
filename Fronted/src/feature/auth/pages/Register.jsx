@@ -64,6 +64,18 @@ const Register = () => {
       })
     } catch (err) {
       console.error('Register error:', err)
+      if (err.code === 'ECONNABORTED' || err.message?.includes?.('timeout')) {
+        setError(
+          'The server took too long to respond. On free hosting the first request can take up to a minute while the service wakes up — wait and try again.'
+        )
+        return
+      }
+      if (!err.response) {
+        setError(
+          'Cannot reach the server. Check your network and that the backend is deployed and running.'
+        )
+        return
+      }
       const res = err.response?.data
       const msg =
         res?.errors?.map((e) => e.message).join(' ') ||

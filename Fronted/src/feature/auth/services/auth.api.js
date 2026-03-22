@@ -4,7 +4,7 @@ import { getApiBaseURL } from "../../../config/apiOrigin.js";
 const api = axios.create({
     baseURL: getApiBaseURL(),
     withCredentials: true,
-    timeout: 60_000,
+    timeout: 90_000,
 });
 
 export const loginUser = async ({ identifier, password }) => {
@@ -18,12 +18,16 @@ export const loginUser = async ({ identifier, password }) => {
 
 export const registerUser = async ({ username, email, password, confirmPassword }) => {
     try {
-        const response = await api.post("/api/auth/register", {
-            username,
-            email,
-            password,
-            confirmPassword,
-        });
+        const response = await api.post(
+            "/api/auth/register",
+            {
+                username,
+                email,
+                password,
+                confirmPassword,
+            },
+            { timeout: 120_000 }
+        );
         return response.data;
     } catch (error) {
         throw error;
