@@ -6,15 +6,26 @@ import { setUser, setLoading, setError } from "../auth.slice";
 export function useAuth() {
     const dispatch = useDispatch();
 
-    async function handleRegister({ email, username, password }) {
+    async function handleRegister({ email, username, password, confirmPassword }) {
         try {
             dispatch(setLoading(true));
-            const data = await registerUser({email,username,password});
-
+            dispatch(setError(null));
+            const data = await registerUser({
+                email,
+                username,
+                password,
+                confirmPassword,
+            });
+            return data;
         } catch (error) {
-            dispatch(setError(error.response?.data?.message || "Something went wrong"))
-
-        }finally{
+            const res = error.response?.data;
+            const msg =
+                res?.errors?.map((e) => e.message).join(" ") ||
+                res?.message ||
+                "Something went wrong";
+            dispatch(setError(msg));
+            throw error;
+        } finally {
             dispatch(setLoading(false));
         }
     }

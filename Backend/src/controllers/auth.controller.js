@@ -30,18 +30,34 @@ export const registerController = async (req, res) => {
 
     const verificationToken = jwt.sign({ email: user.email }, process.env.JWT_SECRET);
 
-    await sendMail({
-        to: email,
-        subject: "Verify your email",
-        html: `Hi ${username},<br>Please verify your email by clicking on the link below:<br>
-               <a href="http://localhost:3000/api/auth/verify-email/${verificationToken}">Verify Email</a>`
-    });
+    const baseUrl =
+        process.env.PUBLIC_API_URL ||
+        `http://localhost:${process.env.PORT || 3000}`;
+    const verifyUrl = `${baseUrl.replace(/\/$/, "")}/api/auth/verify-email/${verificationToken}`;
 
+    let emailSent = false;
+    try {
+        await sendMail({
+            to: email,
+            subject: "Verify your email",
+            html: `Hi ${username},<br>Please verify your email by clicking on the link below:<br>
+               <a href="${verifyUrl}">Verify Email</a>`,
+        });
+        emailSent = true;
+    } catch (err) {
+        console.error("Verification email failed:", err.message);
+        if (process.env.NODE_ENV !== "production") {
+            console.info("[dev] Verification link:", verifyUrl);
+        }
+    }
 
     return res.status(201).json({
-        message: "User created successfully",
+        message: emailSent
+            ? "User created successfully"
+            : "User created successfully, but the verification email could not be sent. Check server logs or mail configuration.",
         success: true,
-        user
+        emailSent,
+        user,
     });
 
 

@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Link,useNavigate, Navigate } from 'react-router'
+import { Link, useNavigate, Navigate, useLocation } from 'react-router'
 import { useAuth } from '../hook/useAuth'
 import { useSelector } from 'react-redux'
  
@@ -42,9 +42,11 @@ const Login = () => {
 
 
 
-  const navigate = useNavigate();
+  const navigate = useNavigate()
+  const location = useLocation()
+  const postRegister = location.state?.registered ? location.state : null
 
-  const {handleLogin} = useAuth();
+  const { handleLogin } = useAuth()
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -162,6 +164,46 @@ const Login = () => {
           <div className="mb-8">
             <h1 className="text-2xl font-bold text-white" style={{ fontFamily: "'Syne', sans-serif" }}>Sign in</h1>
             <p className="text-zinc-500 text-sm mt-1.5">Enter your credentials to continue</p>
+            {postRegister && (
+              <div
+                className="mt-4 rounded-xl px-4 py-3 space-y-1.5"
+                style={{
+                  background: postRegister.emailSent ? `${TEAL}12` : '#42200628',
+                  border: `1px solid ${postRegister.emailSent ? `${TEAL}45` : '#92400e55'}`,
+                }}
+                role="status"
+              >
+                <p
+                  className="text-sm font-semibold flex items-center gap-2"
+                  style={{ color: postRegister.emailSent ? TEAL : '#fbbf24' }}
+                >
+                  <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                  {postRegister.emailSent
+                    ? 'Verify your email'
+                    : 'Account created — email not sent'}
+                </p>
+                {postRegister.emailSent ? (
+                  <>
+                    <p className="text-xs text-zinc-400 leading-relaxed">
+                      We sent a verification link to{' '}
+                      <span className="text-zinc-200 font-medium">{postRegister.email}</span>.
+                      Open your inbox, click the link, then sign in here.
+                    </p>
+                    <p className="text-xs text-zinc-500">
+                      You must verify before you can log in.
+                    </p>
+                  </>
+                ) : (
+                  <p className="text-xs text-zinc-400 leading-relaxed">
+                    We could not send a verification email to{' '}
+                    <span className="text-zinc-200 font-medium">{postRegister.email}</span>.
+                    Check server mail settings or ask an admin. You still need a verified email to sign in.
+                  </p>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Social buttons */}

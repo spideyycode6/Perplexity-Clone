@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
-import { Link } from 'react-router'
+import { Link, useNavigate } from 'react-router'
+import { registerUser } from '../services/auth.api'
 
 /* ─── Teal accent ─────────────────────────────────── */
 const TEAL = '#20e3b2'
@@ -36,6 +37,7 @@ const Register = () => {
   const [error, setError] = useState('')
   const [isLoading, setLoading] = useState(false)
   const [focused, setFocused]   = useState('')
+  const navigate = useNavigate()
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -51,12 +53,24 @@ const Register = () => {
     }
     setLoading(true)
     try {
-      const { confirmPassword, ...payload } = formData
-      console.log('Register payload:', payload)
-      // TODO: await registerUser(payload)
+      const data = await registerUser(formData)
+      navigate('/login', {
+        replace: false,
+        state: {
+          registered: true,
+          email: formData.email,
+          emailSent: data.emailSent === true,
+        },
+      })
     } catch (err) {
       console.error('Register error:', err)
-      setError('Registration failed. Please try again.')
+      const res = err.response?.data
+      const msg =
+        res?.errors?.map((e) => e.message).join(' ') ||
+        res?.message ||
+        res?.error ||
+        'Registration failed. Please try again.'
+      setError(msg)
     } finally {
       setLoading(false)
     }
