@@ -47,7 +47,11 @@ export const registerController = async (req, res) => {
                 subject: "Verify your email",
                 html,
             }).catch((err) => {
-                console.error("Verification email failed (async):", err.message);
+                console.error(
+                    "Verification email failed (async):",
+                    err.message,
+                    err.stack || ""
+                );
             });
         });
     } else {
